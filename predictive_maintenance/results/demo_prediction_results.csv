@@ -1,0 +1,2 @@
+unit_id,timestamp,cycles_analyzed,rf_status,rf_confidence,lstm_rul,recommendations
+1,2025-10-27T08:01:03.788647,100,Critical,76.83148860907222,11.725663185119629,"['🚨 URGENT: Machine failure imminent', '⏸️ Consider stopping operation for maintenance', '🔧 Schedule immediate maintenance intervention', '📦 Ensure replacement parts are available', '👥 Alert maintenance team immediately', '📋 Prepare work order and safety procedures', '⏱️ Estimated 11 cycles remaining - plan replacement soon']"
