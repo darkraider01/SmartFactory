@@ -72,14 +72,25 @@ print("-" * 60)
 # Select feature columns
 sensor_cols = [f's{i}' for i in range(1, 22)]
 op_settings = ['os1', 'os2', 'os3']
-feature_cols = sensor_cols + op_settings
+
+# Add rolling features (simplified version matching training)
+rolling_window = 10
+for sensor in sensor_cols[:5]:  # First 5 sensors
+    df_normalized = df.copy()
+    df_normalized[f'{sensor}_rolling_mean'] = df[sensor].rolling(window=rolling_window, min_periods=1).mean()
+    df_normalized[f'{sensor}_rolling_std'] = df[sensor].rolling(window=rolling_window, min_periods=1).std().fillna(0)
+    df[f'{sensor}_rolling_mean'] = df_normalized[f'{sensor}_rolling_mean']
+    df[f'{sensor}_rolling_std'] = df_normalized[f'{sensor}_rolling_std']
+
+# All features (matching training)
+feature_cols = sensor_cols + op_settings + [col for col in df.columns if 'rolling' in col]
 
 # Normalize features
 scaler = MinMaxScaler()
 df_normalized = df.copy()
 df_normalized[feature_cols] = scaler.fit_transform(df[feature_cols])
 
-print(f"✓ Normalized {len(feature_cols)} features")
+print(f"✓ Normalized {len(feature_cols)} features (24 base + 10 engineered)")
 print(f"✓ Using MinMax scaling (0-1 range)")
 
 # Create sequences for LSTM (use last 50 timesteps)
@@ -88,7 +99,7 @@ X = df_normalized[feature_cols].values[-sequence_length:]
 X_seq = X.reshape(1, sequence_length, len(feature_cols))
 X_flat = X_seq.reshape(1, -1)  # For RF/XGB
 
-print(f"✓ Created sequence: {X_seq.shape}")
+print(f"✓ Created sequence: {X_seq.shape} → Flattened: {X_flat.shape}")
 
 # Step 4: Make Predictions
 print("\n\n🔮 Step 4: Generating Predictions...")
